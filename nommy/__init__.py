@@ -8,7 +8,9 @@ A python implementation of Rust's nom.
 __title__ = 'nommy'
 __version__ = '0.0.1'
 __all__ = (
-    'parser',
+    'parser', 'Data',
+    'NommyError', 'NommyUnpackError', 'NommyLShiftError',
+    'NommyChompBitsError',
     'string', 'flag', 'char',
     'le_u8', 'be_u8', 'le_i8', 'be_i8', 'bool8',
     'le_u16', 'be_u16', 'le_i16', 'be_i16',
@@ -23,7 +25,7 @@ __license__ = 'GPLv3'
 __copyright__ = 'Copyright 2020 Johan Nestaas'
 
 from .parser import (
-    parser,
+    parser, Data,
     string, flag, char,
     le_u8, be_u8, le_i8, be_i8, bool8,
     le_u16, be_u16, le_i16, be_i16,
@@ -32,6 +34,9 @@ from .parser import (
     le_float16, be_float16,
     le_float32, be_float32,
     le_float64, be_float64,
+)
+from .exceptions import (
+    NommyError, NommyUnpackError, NommyLShiftError, NommyChompBitsError,
 )
 
 

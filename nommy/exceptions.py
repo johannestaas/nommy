@@ -4,3 +4,11 @@ class NommyError(ValueError):
 
 class NommyUnpackError(NommyError):
     pass
+
+
+class NommyLShiftError(NommyError):
+    pass
+
+
+class NommyChompBitsError(NommyError):
+    pass

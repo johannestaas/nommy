@@ -38,13 +38,12 @@ setup(
         'Operating System :: Microsoft :: Windows',
         'Programming Language :: Python',
     ],
-    install_requires=[
-    ],
-    entry_points={
-        'console_scripts': [
-            'nommy=nommy:main',
-        ],
-    },
+    install_requires=[],
+    # entry_points={
+    #     'console_scripts': [
+    #         'nommy=nommy:main',
+    #     ],
+    # },
     # If you get errors running setup.py install:
     # zip_safe=False,
     #
