@@ -1,0 +1,2 @@
+class NommyError(ValueError):
+    pass
