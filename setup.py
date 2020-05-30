@@ -2,7 +2,7 @@ import os
 from setuptools import setup
 
 # nommy
-# A python implementation of Rust's nom.
+# A python byte and bit parser inspired by Rust's nom.
 
 
 def read(fname):
