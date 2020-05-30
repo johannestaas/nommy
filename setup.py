@@ -12,7 +12,7 @@ def read(fname):
 setup(
     name="nommy",
     version="0.0.1",
-    description="A python implementation of Rust's nom.",
+    description="A python byte and bit parser inspired by Rust's nom.",
     author="Johan Nestaas",
     author_email="johannestaas@gmail.com",
     license="GPLv3",

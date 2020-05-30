@@ -1,7 +1,7 @@
 nommy
 =====
 
-A python implementation of Rust's nom.
+A python byte and bit parser inspired by Rust's nom.
 
 Installation
 ------------
