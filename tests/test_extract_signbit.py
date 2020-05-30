@@ -4,7 +4,7 @@ from nommy import Data
 
 
 @pytest.mark.parametrize(
-    'size, bytestr,expected_sign,expected', [
+    'size, bytestr, expected_sign, expected', [
         (8, b'\xff', -1, [0x7f]),
         (8, b'\x80', -1, [0x00]),
         (8, b'\x7f', 1, [0x7f]),
@@ -23,7 +23,7 @@ from nommy import Data
         (32, b'\x7f\x12\x34\x56', 1, [0x7f, 0x12, 0x34, 0x56]),
     ],
 )
-def test_extract_signbit_ff(size, bytestr, expected_sign, expected):
+def test_extract_signbit(size, bytestr, expected_sign, expected):
     data = Data(bytestr)
     arr = bytearray(data.bytes)
     sign = data._extract_sign_from_bytearray(arr, size)
