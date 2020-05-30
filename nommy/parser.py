@@ -12,20 +12,37 @@ class Data:
         self._chomped_bits = 0
 
     def chomp_bits(self, count):
-        first = self._bytes[0]
+        pass
+
+    @property
+    def bytes(self):
+        if self._chomped_bits != 0:
+            self.lshift(self._chomped_bits)
+        return self._bytes
+
+    def lshift(self, size):
+        if self._chomped_bits == 0:
+            if size % 8 == 0:
+                self._bytes = self._bytes[size // 8:]
+            else:
+                pass
+        else:
+            pass
 
 
 def string(size):
 
-    def _parser(byts):
-        return byts[:size].decode('utf8'), byts[size:]
+    def _parser(data):
+        val = data.bytes[:size].decode('utf8')
+        data.lshift(size * 8)
+        return val
 
     return _parser
 
 
-def flag(byts):
+def flag(_bytes):
 
-    def _parser(byts):
+    def _parser(_bytes):
         return ..., ...
 
     return _parser
@@ -33,12 +50,13 @@ def flag(byts):
 
 def _make_parser(unpack_str, size):
 
-    def _parser(byts):
+    def _parser(data):
         try:
-            val = struct.unpack(unpack_str, byts[0:size])[0]
+            val = struct.unpack(unpack_str, data.bytes[:size])[0]
+            data.lshift(size * 8)
         except struct.error as e:
             raise NommyUnpackError(e)
-        return val, byts[size:]
+        return val
 
     return _parser
 
@@ -69,17 +87,18 @@ le_float64 = _make_parser('<d', 8)
 be_float64 = _make_parser('>d', 8)
 
 
-def _parse(cls, byts):
+def _parse(cls, _bytes):
     vals = {}
+    data = Data(_bytes)
     for name, pfunc in cls._parsers.items():
         try:
-            val, byts = pfunc(byts)
+            val = pfunc(data)
         except NommyUnpackError as e:
             raise NommyUnpackError(
-                f'failed to unpack {name} from byts {byts!r}: {e}'
+                f'failed to unpack {name} from bytes {data.bytes!r}: {e}'
             )
         vals[name] = val
-    return cls(**vals), byts
+    return cls(**vals), data.bytes
 
 
 def parser(cls):
@@ -94,15 +113,3 @@ def parser(cls):
     new._parsers = parsers
     new.parse = partial(_parse, new)
     return new
-
-
-@parser
-class Example:
-    header: string(4)
-    name: string(5)
-    some_byte: le_u8
-
-
-print(repr(Example.parse(
-    b'BUZZjohanA'
-)[0]))
