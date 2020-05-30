@@ -65,7 +65,6 @@ class Data:
         # If it's size 10, then you might have 0x03ff.
         # That first byte is 0b0011. 10 % 8 == 2.
         # For size 11, 0x07ff would be 0111.1111.1111, % 8 == 3...
-        first = arr[0]
         mod = size % 8
         # _BIT_MASK key, to get which bit it is.
         # If it was the 3rd bit, like size 11 % 3, then the key would be
@@ -82,11 +81,16 @@ class Data:
         arr[0] &= mask
         return -1 if signbit else 1
 
+    def _twos_complement(self, arr, size):
+        sign = self._extract_sign_from_bytearray(arr, size)
+        raise NotImplementedError()
+        return sign
+
     def chomp_bits(self, size, endian='le', signed=False):
         arr = self.chomp_to_bytearray(size)
         sign = 1
         if signed:
-            sign = self._extract_sign_from_bytearray(arr, size)
+            sign = self._twos_complement(arr, size)
         if endian == 'be':
             arr = arr[::-1]
         val = 0
