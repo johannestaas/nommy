@@ -100,6 +100,38 @@ def flag(data):
     return bool(data.chomp_bits(1))
 
 
+def le_u(size):
+
+    def _parser(data):
+        return data.chomp_bits(size, endian='le', signed=False)
+
+    return _parser
+
+
+def be_u(size):
+
+    def _parser(data):
+        return data.chomp_bits(size, endian='be', signed=False)
+
+    return _parser
+
+
+def le_i(size):
+
+    def _parser(data):
+        return data.chomp_bits(size, endian='le', signed=True)
+
+    return _parser
+
+
+def be_i(size):
+
+    def _parser(data):
+        return data.chomp_bits(size, endian='be', signed=True)
+
+    return _parser
+
+
 def _make_parser(unpack_str, size):
 
     def _parser(data):
