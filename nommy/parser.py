@@ -36,9 +36,9 @@ class Data:
         bit_str = ''.join(str(x) for x in arr)
         return int('0b' + bit_str, 2)
 
-    def chomp_to_bitarray(self, count):
+    def chomp_to_bitarray(self, size):
         bits = []
-        for chomped in range(count):
+        for chomped in range(size):
             if not self._bytes:
                 raise NommyChompBitsError(f'no more data: {self._bytes!r}')
             byt = self._bytes[0]
@@ -50,8 +50,8 @@ class Data:
             self._reset_chomped_bits()
         return bits
 
-    def chomp_to_bytearray(self, count):
-        bit_arr = self.chomp_to_bitarray(count)
+    def chomp_to_bytearray(self, size):
+        bit_arr = self.chomp_to_bitarray(size)
         byte_arr = bytearray()
         while bit_arr:
             last = bit_arr[-8:]
@@ -59,15 +59,34 @@ class Data:
             byte_arr.append(self._convert_bitarray_be(last))
         return byte_arr[::-1]
 
-    def chomp_bits(self, count, endian='le', signed=False):
-        arr = self.chomp_to_bytearray(count)
+    def _extract_sign_from_bytearray(self, arr, size):
+        # If it's size 9, then you might have 0x01ff, signed -255.
+        # That first byte is 0x01. 9 % 8 == 1.
+        # If it's size 10, then you might have 0x03ff.
+        # That first byte is 0b0011. 10 % 8 == 2.
+        # For size 11, 0x07ff would be 0111.1111.1111, % 8 == 3...
+        first = arr[0]
+        mod = size % 8
+        # _BIT_MASK key, to get which bit it is.
+        # If it was the 3rd bit, like size 11 % 3, then the key would be
+        # 5, or 8 - mod.
+        # If mod is 0, then it's the 8th bit and the key should be 0.
+        if mod == 0:
+            key = 0
+        else:
+            key = 8 - mod
+        the_bit, mask = _BIT_MASK[key]
+        # Get the signbit.
+        signbit = bool(arr[0] & the_bit)
+        # Mask it out.
+        arr[0] &= mask
+        return -1 if signbit else 1
+
+    def chomp_bits(self, size, endian='le', signed=False):
+        arr = self.chomp_to_bytearray(size)
         sign = 1
-        # Get the sign of the leftmost bit.
         if signed:
-            sign = -1 if bool(0x80 & arr[0]) else 1
-            arr[0] = arr[0] & 0x7f
-        if len(arr) == 1:
-            return arr[0] * sign
+            sign = self._extract_sign_from_bytearray(arr, size)
         if endian == 'be':
             arr = arr[::-1]
         val = 0
