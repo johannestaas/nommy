@@ -40,12 +40,8 @@ def string(size):
     return _parser
 
 
-def flag(_bytes):
-
-    def _parser(_bytes):
-        return ..., ...
-
-    return _parser
+def flag(data):
+    return bool(data.chomp_bits(1))
 
 
 def _make_parser(unpack_str, size):
