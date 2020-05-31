@@ -17,8 +17,7 @@ From pip::
 Usage
 -----
 
-Parser
-------
+# Parser
 
 You specify a class wrapped with `@nommy.parser` that has type hints in the order
 that variables occur in the bytes::
@@ -44,8 +43,7 @@ that variables occur in the bytes::
     print(example.six_bit_unsigned)  # \x1f or 31
 
 
-Endianedness and Signedness
-------------------------
+# Endianedness and Signedness
 
 There are several little-endian and big-endian types to use, such as::
 
@@ -63,8 +61,7 @@ There are several little-endian and big-endian types to use, such as::
 You also have signed sizes, like `le_i8`, `le_i16`, `le_i32`, and `le_i64`.
 For each of those, you also have big-endian: `be_u16`, ...
 
-Strings
--------
+# Strings
 
 There are three string types you can parse.
 
@@ -80,8 +77,7 @@ And you also can parse pascal strings::
 
     some_str: pascal_string
 
-Flag
-----
+# Flag
 
 You also can trivially extract a bit as a boolean variable::
 
