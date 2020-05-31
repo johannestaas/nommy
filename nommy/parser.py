@@ -8,11 +8,19 @@ from .data import Data
 
 def string(size):
 
-    def _parser(data):
-        val = data.bytes[:size].decode('utf8')
-        data << size * 8
-        return val
-
+    if size is None:
+        def _parser(data):
+            s = ''
+            while data.bytes[0] != 0:
+                s += chr(data.bytes[0])
+                data << 8
+            data << 8
+            return s
+    else:
+        def _parser(data):
+            val = data.bytes[:size].decode('utf8')
+            data << size * 8
+            return val
     return _parser
 
 

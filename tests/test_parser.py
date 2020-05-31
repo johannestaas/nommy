@@ -89,3 +89,24 @@ def test_pascal_string():
         magic='BB', first_name='abcdef0123456789', last_name='',
     )
     assert rest == b'\x0f\x0f'
+
+
+@parser
+class NullTermString:
+    magic: string(4)
+    first_name: string(None)
+    last_name: string(None)
+
+
+def test_null_term_string():
+    data, rest = NullTermString.parse(b'foobHello\0World!\0\xff')
+    assert data == NullTermString(
+        magic='foob', first_name='Hello', last_name='World!',
+    )
+    assert rest == b'\xff'
+
+    data, rest = NullTermString.parse(b'fooB\0testingtesting\0\0\0\0\0')
+    assert data == NullTermString(
+        magic='fooB', first_name='', last_name='testingtesting',
+    )
+    assert rest == b'\0\0\0\0'
