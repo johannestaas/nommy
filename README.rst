@@ -12,7 +12,7 @@ From the project root directory::
 
 From pip::
 
-   $ pip install nommy
+    $ pip install nommy
 
 Usage
 =====
@@ -23,25 +23,25 @@ Parser
 You specify a class wrapped with `@nommy.parser` that has type hints in the order
 that variables occur in the bytes::
 
-   import nommy
+    import nommy
 
-   @nommy.parser
-   class Example:
-      magic_str: nommy.string(8)
-      some_unsigned_byte: nommy.le_u8
-      some_unsigned_16bit: nommy.le_u16
-      some_flag: nommy.flag
-      next_flag: nommy.flag
-      six_bit_unsigned: nommy.le_u(6)
-      ...
+    @nommy.parser
+    class Example:
+        magic_str: nommy.string(8)
+        some_unsigned_byte: nommy.le_u8
+        some_unsigned_16bit: nommy.le_u16
+        some_flag: nommy.flag
+        next_flag: nommy.flag
+        six_bit_unsigned: nommy.le_u(6)
+        ...
 
-   example, rest_of_bytes = Example.parse(b'CAFEBABE\xff\x12\x34\x80')
-   print(example.magic_str)  # prints "CAFEBABE"
-   print(example.some_unsigned_byte)  # prints 255, from \xff
-   print(hex(example.some_unsigned_16bit))  # prints 0x3412 , because little endian \x12\x34
-   print(example.some_flag)  # "True" from first bit of \x80
-   print(example.next_flag)  # "False" from next bit
-   print(example.six_bit_unsigned)  # \x1f or 31
+    example, rest_of_bytes = Example.parse(b'CAFEBABE\xff\x12\x34\x80')
+    print(example.magic_str)  # prints "CAFEBABE"
+    print(example.some_unsigned_byte)  # prints 255, from \xff
+    print(hex(example.some_unsigned_16bit))  # prints 0x3412 , because little endian \x12\x34
+    print(example.some_flag)  # "True" from first bit of \x80
+    print(example.next_flag)  # "False" from next bit
+    print(example.six_bit_unsigned)  # \x1f or 31
 
 
 Endianedness and Signedness
@@ -49,16 +49,16 @@ Endianedness and Signedness
 
 There are several little-endian and big-endian types to use, such as::
 
-   @parser
-   class LittleEndianUnsigned:
-      eight_bit: le_u8
-      sixteen_bit: le_u16
-      thirtytwo_bit: le_u32
-      sixtyfour_bit: le_u64
-      one_bit: le_u(1)
-      two_bit: le_u(2)
-      ...
-      seven_bit: le_u(7)
+    @parser
+    class LittleEndianUnsigned:
+        eight_bit: le_u8
+        sixteen_bit: le_u16
+        thirtytwo_bit: le_u32
+        sixtyfour_bit: le_u64
+        one_bit: le_u(1)
+        two_bit: le_u(2)
+        ...
+        seven_bit: le_u(7)
 
 You also have signed sizes, like `le_i8`, `le_i16`, `le_i32`, and `le_i64`.
 For each of those, you also have big-endian: `be_u16`, ...
@@ -70,22 +70,22 @@ There are three string types you can parse.
 
 You can parse a static length string::
 
-   static_len: string(12)
+    static_len: string(12)
 
 You can parse a null-terminated string::
 
-   null_term: string(None)
+    null_term: string(None)
 
 And you also can parse pascal strings::
 
-   some_str: pascal_string
+    some_str: pascal_string
 
 Flag
 ----
 
 You also can trivially extract a bit as a boolean variable::
 
-   debug: nommy.flag
+    debug: nommy.flag
 
 See examples for more.
 
