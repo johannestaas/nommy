@@ -16,6 +16,13 @@ def string(size):
     return _parser
 
 
+def pascal_string(data):
+    ln = data.bytes[0]
+    val = data.bytes[1:ln + 1].decode('utf8')
+    data << (ln + 1) * 8
+    return val
+
+
 def flag(data):
     return bool(data.chomp_bits(1))
 

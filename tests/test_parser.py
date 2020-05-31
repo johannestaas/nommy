@@ -1,4 +1,4 @@
-from nommy import parser, string, le_u8, flag
+from nommy import parser, string, pascal_string, le_u8, flag
 
 
 @parser
@@ -46,26 +46,46 @@ class Flags:
 
 def test_flags():
     flags, rest = Flags.parse(b'MZ\xf0')
-    assert flags.magic == 'MZ'
-    assert flags.flag1
-    assert flags.flag2
-    assert flags.flag3
-    assert flags.flag4
+    assert flags == Flags(
+        magic='MZ', flag1=True, flag2=True, flag3=True, flag4=True,
+    )
+    assert rest == b'\x00'
+
     flags, rest = Flags.parse(b'MZ\x0f\x00')
-    assert flags.magic == 'MZ'
-    assert not flags.flag1
-    assert not flags.flag2
-    assert not flags.flag3
-    assert not flags.flag4
+    assert flags == Flags(
+        magic='MZ', flag1=False, flag2=False, flag3=False, flag4=False,
+    )
+    assert rest == b'\x0f\x00'
+
     flags, rest = Flags.parse(b'MZ\xcf\x00')
-    assert flags.magic == 'MZ'
-    assert flags.flag1
-    assert flags.flag2
-    assert not flags.flag3
-    assert not flags.flag4
+    assert flags == Flags(
+        magic='MZ', flag1=True, flag2=True, flag3=False, flag4=False,
+    )
+    assert rest == b'\x0f\x00'
+
     flags, rest = Flags.parse(b'MZ\x1f\x00')
-    assert flags.magic == 'MZ'
-    assert not flags.flag1
-    assert not flags.flag2
-    assert not flags.flag3
-    assert flags.flag4
+    assert flags == Flags(
+        magic='MZ', flag1=False, flag2=False, flag3=False, flag4=True,
+    )
+    assert rest == b'\x0f\x00'
+
+
+@parser
+class PascalString:
+    magic: string(2)
+    first_name: pascal_string
+    last_name: pascal_string
+
+
+def test_pascal_string():
+    data, rest = PascalString.parse(b'AA\3joe\6schmoe')
+    assert data == PascalString(
+        magic='AA', first_name='joe', last_name='schmoe',
+    )
+    assert rest == b''
+
+    data, rest = PascalString.parse(b'BB\x10abcdef0123456789\0\x0f\x0f')
+    assert data == PascalString(
+        magic='BB', first_name='abcdef0123456789', last_name='',
+    )
+    assert rest == b'\x0f\x0f'

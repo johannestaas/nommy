@@ -11,7 +11,7 @@ __all__ = (
     'parser', 'Data',
     'NommyError', 'NommyUnpackError', 'NommyLShiftError',
     'NommyChompBitsError',
-    'string', 'flag', 'char',
+    'string', 'pascal_string', 'flag', 'char',
     'le_u', 'be_u',
     'le_u8', 'be_u8', 'le_i8', 'be_i8', 'bool8',
     'le_u16', 'be_u16', 'le_i16', 'be_i16',
@@ -27,7 +27,7 @@ __copyright__ = 'Copyright 2020 Johan Nestaas'
 
 from .parser import (
     parser, Data,
-    string, flag, char,
+    string, pascal_string, flag, char,
     le_u, be_u,
     le_u8, be_u8, le_i8, be_i8, bool8,
     le_u16, be_u16, le_i16, be_i16,
