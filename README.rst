@@ -4,7 +4,7 @@ nommy
 A python byte and bit parser inspired by Rust's nom.
 
 Installation
-============
+------------
 
 From the project root directory::
 
@@ -15,7 +15,7 @@ From pip::
     $ pip install nommy
 
 Usage
-=====
+-----
 
 Parser
 ------
@@ -91,7 +91,7 @@ See examples for more.
 
 
 Release Notes
-=============
+-------------
 
 :0.1.0:
     Works for major types, with strings and flags.
