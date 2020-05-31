@@ -60,6 +60,9 @@ class Data:
         return byte_arr[::-1]
 
     def _extract_sign_from_bytearray(self, arr, size):
+        """
+        Not used yet. Two's complement not implemented.
+        """
         # If it's size 9, then you might have 0x01ff, signed -255.
         # That first byte is 0x01. 9 % 8 == 1.
         # If it's size 10, then you might have 0x03ff.
@@ -82,15 +85,16 @@ class Data:
         return -1 if signbit else 1
 
     def _twos_complement(self, arr, size):
-        sign = self._extract_sign_from_bytearray(arr, size)
         raise NotImplementedError()
+        sign = self._extract_sign_from_bytearray(arr, size)
         return sign
 
-    def chomp_bits(self, size, endian='le', signed=False):
+    def chomp_bits(self, size, endian='le'):
         arr = self.chomp_to_bytearray(size)
         sign = 1
-        if signed:
-            sign = self._twos_complement(arr, size)
+        # TODO add signed logic and `signed` keyword.
+        # if signed:
+        #     sign = self._twos_complement(arr, size)
         if endian == 'be':
             arr = arr[::-1]
         val = 0
@@ -126,7 +130,7 @@ def flag(data):
 def le_u(size):
 
     def _parser(data):
-        return data.chomp_bits(size, endian='le', signed=False)
+        return data.chomp_bits(size, endian='le')
 
     return _parser
 
@@ -134,11 +138,13 @@ def le_u(size):
 def be_u(size):
 
     def _parser(data):
-        return data.chomp_bits(size, endian='be', signed=False)
+        return data.chomp_bits(size, endian='be')
 
     return _parser
 
 
+# TODO add signed logic for le/be functions.
+'''
 def le_i(size):
 
     def _parser(data):
@@ -153,6 +159,7 @@ def be_i(size):
         return data.chomp_bits(size, endian='be', signed=True)
 
     return _parser
+'''
 
 
 def _make_parser(unpack_str, size):
