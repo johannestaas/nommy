@@ -3,7 +3,6 @@ from enum import Enum
 from nommy import le_enum, parser, string
 
 
-
 @le_enum(8)
 class DNSRType(Enum):
     A = 1
