@@ -83,6 +83,30 @@ You also can trivially extract a bit as a boolean variable::
 
     debug: nommy.flag
 
+# Enum
+
+You can also create an `le_enum` or `be_enum` if you want to parse something
+like a DNS rtype, to have easy named values::
+
+    from enum import Enum
+    from nommy import le_enum, parser
+
+    @le_enum(4)  # 4 bit size
+    class DNSRType(Enum):
+       A = 1
+       NS = 2
+       MD = 3
+       MF = 4
+       ...
+
+    @parser
+    class DNSRecord:
+        rtype: DNSRType
+        ...
+
+    data, rest = DNSRecord.parse(b'\x10...')
+    assert data == DNSRecord(rtype=DNSRType.A, ...)
+
 See examples for more.
 
 
