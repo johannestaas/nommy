@@ -113,6 +113,8 @@ See examples for more.
 Release Notes
 -------------
 
+:0.2.0:
+    Added enums.
 :0.1.0:
     Works for major types, with strings and flags.
 :0.0.1:

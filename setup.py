@@ -11,7 +11,7 @@ def read(fname):
 
 setup(
     name="nommy",
-    version="0.1.0",
+    version="0.2.0",
     description="A python byte and bit parser inspired by Rust's nom.",
     author="Johan Nestaas",
     author_email="johannestaas@gmail.com",
