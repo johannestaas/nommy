@@ -9,8 +9,9 @@ __title__ = 'nommy'
 __version__ = '0.1.0'
 __all__ = (
     'parser', 'Data',
+    'le_enum', 'be_enum',
     'NommyError', 'NommyUnpackError', 'NommyLShiftError',
-    'NommyChompBitsError',
+    'NommyEnumValueError', 'NommyChompBitsError',
     'string', 'pascal_string', 'flag', 'char',
     'le_u', 'be_u',
     'le_u8', 'be_u8', 'le_i8', 'be_i8', 'bool8',
@@ -37,8 +38,10 @@ from .parser import (
     le_float32, be_float32,
     le_float64, be_float64,
 )
+from .enum import le_enum, be_enum
 from .exceptions import (
     NommyError, NommyUnpackError, NommyLShiftError, NommyChompBitsError,
+    NommyEnumValueError,
 )
 
 

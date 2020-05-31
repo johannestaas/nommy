@@ -6,70 +6,6 @@ from .exceptions import NommyUnpackError
 from .data import Data
 
 
-def string(size):
-
-    if size is None:
-        def _parser(data):
-            s = ''
-            while data.bytes[0] != 0:
-                s += chr(data.bytes[0])
-                data << 8
-            data << 8
-            return s
-    else:
-        def _parser(data):
-            val = data.bytes[:size].decode('utf8')
-            data << size * 8
-            return val
-    return _parser
-
-
-def pascal_string(data):
-    ln = data.bytes[0]
-    val = data.bytes[1:ln + 1].decode('utf8')
-    data << (ln + 1) * 8
-    return val
-
-
-def flag(data):
-    return bool(data.chomp_bits(1))
-
-
-def le_u(size):
-
-    def _parser(data):
-        return data.chomp_bits(size, endian='le')
-
-    return _parser
-
-
-def be_u(size):
-
-    def _parser(data):
-        return data.chomp_bits(size, endian='be')
-
-    return _parser
-
-
-# TODO add signed logic for le/be functions.
-'''
-def le_i(size):
-
-    def _parser(data):
-        return data.chomp_bits(size, endian='le', signed=True)
-
-    return _parser
-
-
-def be_i(size):
-
-    def _parser(data):
-        return data.chomp_bits(size, endian='be', signed=True)
-
-    return _parser
-'''
-
-
 def _make_parser(unpack_str, size):
 
     def _parser(data):
@@ -107,12 +43,87 @@ le_float32 = _make_parser('<f', 4)
 be_float32 = _make_parser('>f', 4)
 le_float64 = _make_parser('<d', 8)
 be_float64 = _make_parser('>d', 8)
+_le_u = {8: le_u8, 16: le_u16, 32: le_u32, 64: le_u64}
+_le_i = {8: le_i8, 16: le_i16, 32: le_i32, 64: le_i64}
+_be_u = {8: be_u8, 16: be_u16, 32: be_u32, 64: be_u64}
+_be_i = {8: be_i8, 16: be_i16, 32: be_i32, 64: be_i64}
+
+
+def string(size):
+
+    if size is None:
+        def _parser(data):
+            s = ''
+            while data.bytes[0] != 0:
+                s += chr(data.bytes[0])
+                data << 8
+            data << 8
+            return s
+    else:
+        def _parser(data):
+            val = data.bytes[:size].decode('utf8')
+            data << size * 8
+            return val
+    return _parser
+
+
+def pascal_string(data):
+    ln = data.bytes[0]
+    val = data.bytes[1:ln + 1].decode('utf8')
+    data << (ln + 1) * 8
+    return val
+
+
+def flag(data):
+    return bool(data.chomp_bits(1))
+
+
+def le_u(size):
+    if size in _le_u:
+        return _le_u[size]
+
+    def _parser(data):
+        return data.chomp_bits(size, endian='le')
+
+    return _parser
+
+
+def be_u(size):
+    if size in _be_u:
+        return _be_u[size]
+
+    def _parser(data):
+        return data.chomp_bits(size, endian='be')
+
+    return _parser
+
+
+# TODO add signed logic for le/be functions.
+'''
+def le_i(size):
+
+    def _parser(data):
+        return data.chomp_bits(size, endian='le', signed=True)
+
+    return _parser
+
+
+def be_i(size):
+
+    def _parser(data):
+        return data.chomp_bits(size, endian='be', signed=True)
+
+    return _parser
+'''
 
 
 def _parse(cls, _bytes):
     vals = {}
     data = Data(_bytes)
     for name, pfunc in cls._parsers.items():
+        # If it's a class, or a enum.le_enum, etc.
+        if hasattr(pfunc, 'parse'):
+            pfunc = pfunc.parse
         try:
             val = pfunc(data)
         except NommyUnpackError as e:

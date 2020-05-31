@@ -12,3 +12,7 @@ class NommyLShiftError(NommyError):
 
 class NommyChompBitsError(NommyError):
     pass
+
+
+class NommyEnumValueError(NommyError):
+    pass
