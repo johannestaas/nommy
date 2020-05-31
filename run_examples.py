@@ -1,7 +1,8 @@
 from examples.simple import main as main_simple
 from examples.readme_example import main as main_readme_example
 from examples.string_types import main as main_string_types
-from examples.enum import main as main_enum
+from examples.le_enum import main as main_le_enum
+from examples.dns import main as main_dns
 
 
 print('*** Simple Example ***')
@@ -11,4 +12,6 @@ main_readme_example()
 print('*** String Types ***')
 main_string_types()
 print('*** Enum ***')
-main_enum()
+main_le_enum()
+print('*** DNS ***')
+main_dns()
