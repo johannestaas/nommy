@@ -161,6 +161,9 @@ You can even reference other parser values by splitting the field with a period 
         strings: repeating(string(None), 'string_ct')
         payloads: repeating(Payload, 'header.payload_ct')
 
+We also have `repeating_until_null` so that you can handle items that
+keep repeating indefinitely until a null byte is reached, for example,
+in DNS names that are repeating pascal strings essentially.
 
 See examples for more.
 
@@ -168,6 +171,8 @@ See examples for more.
 Release Notes
 -------------
 
+:0.3.1:
+    Add `repeating_until_null` to handle DNS names
 :0.3.0:
     Added support for nested fields and repeating values.
 :0.2.0:

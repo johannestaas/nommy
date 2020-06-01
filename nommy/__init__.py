@@ -6,9 +6,9 @@ A python implementation of Rust's nom.
 '''
 
 __title__ = 'nommy'
-__version__ = '0.3.0'
+__version__ = '0.3.1'
 __all__ = (
-    'parser', 'Data', 'repeating',
+    'parser', 'Data', 'repeating', 'repeating_until_null',
     'le_enum', 'be_enum',
     'NommyError', 'NommyUnpackError', 'NommyLShiftError',
     'NommyEnumValueError', 'NommyChompBitsError', 'NommyFieldError',
@@ -28,7 +28,7 @@ __license__ = 'GPLv3'
 __copyright__ = 'Copyright 2020 Johan Nestaas'
 
 from .parser import (
-    parser, Data, repeating,
+    parser, Data, repeating, repeating_until_null,
     string, pascal_string, flag, char,
     le_u, be_u,
     le_u8, be_u8, le_i8, be_i8, bool8,

@@ -172,6 +172,32 @@ class repeating:
         return val
 
 
+class repeating_until_null:
+    """
+    This will keep parsing until it hits a null byte or end of data.
+    """
+    _is_parser = True
+
+    def __init__(self, parse_func_or_cls):
+        if getattr(parse_func_or_cls, '_is_parser', False):
+            self._parse_cls = parse_func_or_cls
+            self._parse_func = parse_func_or_cls.parse
+        else:
+            self._parse_cls = None
+            self._parse_func = parse_func_or_cls
+
+    def parse(self, data, values=None, parent=None, **kwargs):
+        values = values or {}
+        val = []
+        while data.bytes and data.bytes[0] != '\x00':
+            result = self._parse_func(data, values=values, **kwargs)
+            # Would have `rest` in there as well.
+            if self._parse_cls:
+                result = result[0]
+            val.append(result)
+        return val
+
+
 def _parse(cls, _bytes, values=None, parent=None, **kwargs):
     nt_values = {}
     values = values or {}
