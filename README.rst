@@ -139,9 +139,49 @@ QDCOUNT and ANCOUNT for the number of queries and answers that will be in a foll
 Nommy supports this with the `repeating` class, which allows you to specify a data type that repeats
 the number of times specified by a previous field, likely in the header.
 
-The format is: `repeating(SomeDataType, 'field_that_represents_the_count')`
+The format is: `repeating(SomeDataType, 'integer_field_name')`
 
-You can even reference other parser values by splitting the field with a period `.`::
+We also have `repeating_until_null` so that you can handle items that keep repeating indefinitely
+until a null byte is reached, for example, in DNS names that are repeating pascal strings essentially.
+
+Examples::
+
+    @parser
+    class SomeStruct:
+        # Total size, 1 byte.
+        some_flag1: flag
+        some_flag2: flag
+        some_flag3: flag
+        some_flag4: flag
+        some_four_bit_nibble: le_u(4)
+
+    @parser
+    class HasRepeats:
+        name_ct: le_u8
+        names: repeating(string(None), 'name_ct')
+        struct_ct: le_u8
+        structs: repeating(SomeStruct, 'struct_ct')
+        labels: repeating_until_null(string(4))
+
+    data, rest = HasRepeats.parse(
+        # 4 names, null terminated strings
+        b'\x04foo\0bar\0baz\0quux\0'
+        # 2 structs, 1 byte each
+        # First is \xff, so all true flags and 15 value nibble
+        # Second is \x0a, so all false flags and 10 value nibble
+        b'\x02\xff\x0a'
+        # Labels keep going until they hit a null byte
+        b'ALFA'
+        b'BETA'
+        b'GAMA'
+        b'DLTA'
+        b'\x00'
+    )
+
+See `examples/readme_repeating_example.py`
+
+
+You can even reference other parser values by splitting the field with a period like `header.payload_ct`::
 
     from nommy import parser, repeating, le_u8, string
 
@@ -161,16 +201,17 @@ You can even reference other parser values by splitting the field with a period 
         strings: repeating(string(None), 'string_ct')
         payloads: repeating(Payload, 'header.payload_ct')
 
-We also have `repeating_until_null` so that you can handle items that
-keep repeating indefinitely until a null byte is reached, for example,
-in DNS names that are repeating pascal strings essentially.
-
 See examples for more.
+
+For a full example that shows nested parsers with repeating values that
+closely matches an actual DNS parser, check `examples/dns.py`
 
 
 Release Notes
 -------------
 
+:0.3.2:
+    Fix readme and add `examples/readme_repeating_example.py`
 :0.3.1:
     Add `repeating_until_null` to handle DNS names
 :0.3.0:
