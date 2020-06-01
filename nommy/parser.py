@@ -160,8 +160,8 @@ class repeating:
         return count
 
     def parse(self, data, values=None, parent=None, **kwargs):
-        count = self._get_count_from_values(values)
         values = values or {}
+        count = self._get_count_from_values(values)
         val = []
         for _ in range(count):
             result = self._parse_func(data, values=values, **kwargs)
@@ -173,7 +173,8 @@ class repeating:
 
 
 def _parse(cls, _bytes, values=None, parent=None, **kwargs):
-    values = {}
+    nt_values = {}
+    values = values or {}
     if isinstance(_bytes, Data):
         data = _bytes
     elif isinstance(_bytes, (bytes, bytearray)):
@@ -194,11 +195,12 @@ def _parse(cls, _bytes, values=None, parent=None, **kwargs):
             raise NommyUnpackError(
                 f'failed to unpack {name} from bytes {data.bytes!r}: {e}'
             )
+        nt_values[name] = val
         values[name] = val
     if parent:
-        return cls(**values)
+        return cls(**nt_values)
     else:
-        return cls(**values), data.bytes
+        return cls(**nt_values), data.bytes
 
 
 def parser(cls):
