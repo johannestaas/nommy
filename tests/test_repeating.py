@@ -1,6 +1,9 @@
 import pytest
 
-from nommy import parser, repeating, le_u8, le_u16, be_u32
+from nommy import (
+    parser, repeating, le_u8, le_u16, be_u32, pascal_string,
+    repeating_until_null,
+)
 
 
 @parser
@@ -43,3 +46,33 @@ def test_repeating_unsigned_values(
     assert data.half_arr == exp_halfs
     assert data.dword_arr == exp_dwords
     assert rest == exp_rest
+
+
+@parser
+class RepeatingPascal:
+    strings: repeating_until_null(pascal_string)
+
+
+def test_repeating_until_null_pascal_string():
+    data, rest = RepeatingPascal.parse(b'\3foo\3bar\5hello\6world!\0bar')
+    assert data.strings == [
+        'foo', 'bar', 'hello', 'world!',
+    ]
+    assert rest == b'bar'
+
+
+@parser
+class RepeatingPascalWithID:
+    id: le_u8
+    strings: repeating_until_null(pascal_string)
+
+
+def test_repeating_until_null_pascal_string():
+    data, rest = RepeatingPascalWithID.parse(
+        b'\xff\3foo\3bar\5hello\6world!\0foo'
+    )
+    assert data.id == 0xff
+    assert data.strings == [
+        'foo', 'bar', 'hello', 'world!',
+    ]
+    assert rest == b'foo'

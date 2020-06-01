@@ -79,7 +79,7 @@ class DNSQuery:
 
 
 def main():
-    hdr, rest = DNSQuery.parse(
+    dns, rest = DNSQuery.parse(
         b'\x00\xff'  # ID field, 255
         b'\x05'  # should be 0 QR 0 Opcode AA=True RD=True
         b'\x80'  # RA=True rcode=no_error
@@ -93,7 +93,9 @@ def main():
         b'\x00\x01\x00\x01'
         b'\xff\xff\xff\xff\xff\xff...'  # just something to drop into rest
     )
-    print(f'DNS Header is: {hdr!r}')
+    print(f'DNS Header is: {dns.header!r}')
+    print(f'query 1 is: {dns.queries[0]!r}')
+    print(f'query 2 is: {dns.queries[1]!r}')
 
 
 if __name__ == '__main__':
