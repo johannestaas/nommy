@@ -96,6 +96,7 @@ def main():
     print(f'DNS Header is: {dns.header!r}')
     print(f'query 1 is: {dns.queries[0]!r}')
     print(f'query 2 is: {dns.queries[1]!r}')
+    print(f'rest is: {rest!r}')
 
 
 if __name__ == '__main__':
