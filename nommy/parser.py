@@ -2,13 +2,13 @@ import struct
 from functools import partial
 from collections import namedtuple
 
-from .exceptions import NommyUnpackError, NommyFieldError
+from .exceptions import NommyUnpackError, NommyFieldError, NommyDataError
 from .data import Data
 
 
 def _make_parser(unpack_str, size):
 
-    def _parser(data):
+    def _parser(data, **kwargs):
         try:
             val = struct.unpack(unpack_str, data.bytes[:size])[0]
             data << size * 8
@@ -52,7 +52,7 @@ _be_i = {8: be_i8, 16: be_i16, 32: be_i32, 64: be_i64}
 def string(size):
 
     if size is None:
-        def _parser(data):
+        def _parser(data, **kwargs):
             s = ''
             while data.bytes[0] != 0:
                 s += chr(data.bytes[0])
@@ -60,21 +60,21 @@ def string(size):
             data << 8
             return s
     else:
-        def _parser(data):
+        def _parser(data, **kwargs):
             val = data.bytes[:size].decode('utf8')
             data << size * 8
             return val
     return _parser
 
 
-def pascal_string(data):
+def pascal_string(data, **kwargs):
     ln = data.bytes[0]
     val = data.bytes[1:ln + 1].decode('utf8')
     data << (ln + 1) * 8
     return val
 
 
-def flag(data):
+def flag(data, **kwargs):
     return bool(data.chomp_bits(1))
 
 
@@ -82,7 +82,7 @@ def le_u(size):
     if size in _le_u:
         return _le_u[size]
 
-    def _parser(data):
+    def _parser(data, **kwargs):
         return data.chomp_bits(size, endian='le')
 
     return _parser
@@ -92,7 +92,7 @@ def be_u(size):
     if size in _be_u:
         return _be_u[size]
 
-    def _parser(data):
+    def _parser(data, **kwargs):
         return data.chomp_bits(size, endian='be')
 
     return _parser
@@ -122,52 +122,57 @@ class repeating:
     This allows you to have a list of a repeating parser, based on the count
     specified by the value in `field_name`.
     """
+    _is_parser = True
 
     def __init__(self, parse_func, field):
         self._parse_func = parse_func
         self.field = field
-        self.count = None
 
-    def parse(self, data, **kwargs):
+    def parse(self, data, values=None, **kwargs):
+        values = values or {}
         val = []
-        if not isinstance(self.count, int):
+        try:
+            count = values[self.field]
+        except KeyError:
             raise NommyFieldError(
-                f'couldnt get count from field {self.field!r}: {self.count!r}'
+                f'couldnt get field {self.field!r} from {values!r}'
             )
-        for _ in range(self.count):
-            val.append(self._parse_func(data))
+        if not isinstance(count, int):
+            raise NommyFieldError(
+                f'couldnt get count from field {self.field!r}: {count!r}'
+            )
+        for _ in range(count):
+            val.append(self._parse_func(data, values=values, **kwargs))
         return val
 
-    def load(self, values):
-        if self.field not in values:
-            raise NommyFieldError(
-                f'dont have field {self.field!r} in parsed values: {values!r}'
-            )
-        self.count = values[self.field]
-        if not isinstance(self.count, int):
-            raise NommyFieldError(
-                f'couldnt get count from field {self.field!r}: {self.count!r}'
-            )
-        return
 
-
-def _parse(cls, _bytes):
+def _parse(cls, _bytes, values=None, parent=None, **kwargs):
     values = {}
-    data = Data(_bytes)
-    for name, pfunc in cls._parsers.items():
+    if isinstance(_bytes, Data):
+        data = _bytes
+    elif isinstance(_bytes, (bytes, bytearray)):
+        data = Data(_bytes)
+    else:
+        raise NommyDataError(f'unknown datatype: {_bytes!r}')
+    for name, parse_cls_or_func in cls._parsers.items():
         # If it's a class, or a enum.le_enum, etc.
-        if hasattr(pfunc, 'load'):
-            pfunc.load(values)
-        if hasattr(pfunc, 'parse'):
-            pfunc = partial(pfunc.parse)
+        if getattr(parse_cls_or_func, '_is_parser', False):
+            pcls = parse_cls_or_func
+            pfunc = pcls.parse
+        else:
+            pcls = None
+            pfunc = parse_cls_or_func
         try:
-            val = pfunc(data)
+            val = pfunc(data, values=values, parent=cls, **kwargs)
         except NommyUnpackError as e:
             raise NommyUnpackError(
                 f'failed to unpack {name} from bytes {data.bytes!r}: {e}'
             )
         values[name] = val
-    return cls(**values), data.bytes
+    if parent:
+        return cls(**values)
+    else:
+        return cls(**values), data.bytes
 
 
 def parser(cls):
@@ -175,10 +180,14 @@ def parser(cls):
     parsers = {}
     for key, val in parts.items():
         parsers[key] = val
+        if getattr(val, '_is_parser', False):
+            val._is_subparser = True
     new = namedtuple(
         cls.__name__,
         list(parts.keys()),
     )
+    new._is_parser = True
+    new._is_subparser = False
     new._parsers = parsers
     new.parse = partial(_parse, new)
     return new

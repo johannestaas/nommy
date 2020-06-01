@@ -107,6 +107,41 @@ like a DNS rtype, to have easy named values::
     data, rest = DNSRecord.parse(b'\x10...')
     assert data == DNSRecord(rtype=DNSRType.A, ...)
 
+# Repeating
+
+Sometimes a field in a structure specifies the number of repeating fields, such as in DNS you have
+QDCOUNT and ANCOUNT for the number of queries and answers that will be in a following section.
+Nommy supports this with the `repeating` class, which allows you to specify a data type that repeats
+the number of times specified by a previous field, likely in the header.
+
+The format is: `repeating(SomeDataType, 'field_that_represents_the_count')`
+
+Example::
+
+   from nommy import parser, repeating, flag, le_u, le_u16
+
+   @parser
+   class DNSHeader:
+      id: le_u16
+      qr: flag
+      opcode: le_u(4)
+      aa: flag
+      tc: flag
+      rd: flag
+      ra: flag
+      z: flag
+      ad: flag
+      cd: flag
+      rcode: le_u(4)
+      qdcount: le_u16
+      ancount: le_u16
+      nscount: le_u16
+      arcount: le_u16
+
+   @parser
+   class DNSRequest:
+      header: DNSHeader
+
 See examples for more.
 
 

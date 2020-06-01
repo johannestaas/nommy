@@ -26,6 +26,7 @@ def le_enum(size):
         enum._val_dict = dct
         enum.map = _map
         enum.parse = _parser
+        enum._is_parser = True
 
         return enum
 
@@ -54,6 +55,7 @@ def be_enum(size):
         enum._val_dict = dct
         enum.map = _map
         enum.parse = _parser
+        enum._is_parser = True
 
         return enum
 

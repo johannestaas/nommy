@@ -12,6 +12,7 @@ __all__ = (
     'le_enum', 'be_enum',
     'NommyError', 'NommyUnpackError', 'NommyLShiftError',
     'NommyEnumValueError', 'NommyChompBitsError', 'NommyFieldError',
+    'NommyDataError',
     'string', 'pascal_string', 'flag', 'char',
     'le_u', 'be_u',
     'le_u8', 'be_u8', 'le_i8', 'be_i8', 'bool8',
@@ -41,7 +42,7 @@ from .parser import (
 from .enum import le_enum, be_enum
 from .exceptions import (
     NommyError, NommyUnpackError, NommyLShiftError, NommyChompBitsError,
-    NommyEnumValueError, NommyFieldError,
+    NommyEnumValueError, NommyFieldError, NommyDataError,
 )
 
 

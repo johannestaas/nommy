@@ -20,3 +20,7 @@ class NommyEnumValueError(NommyError):
 
 class NommyFieldError(NommyError):
     pass
+
+
+class NommyDataError(NommyError):
+    pass
