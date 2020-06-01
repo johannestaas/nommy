@@ -8,7 +8,7 @@ def le_enum(size):
     def _enum_decorator(enum):
         chomper = le_u(size)
 
-        def _parser(data):
+        def _parser(data, **kwargs):
             val = chomper(data)
             return enum.map(val)
 
@@ -36,7 +36,7 @@ def be_enum(size):
     def _enum_decorator(enum):
         chomper = be_u(size)
 
-        def _parser(data):
+        def _parser(data, **kwargs):
             val = chomper(data)
             return enum.map(val)
 

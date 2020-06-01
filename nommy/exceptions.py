@@ -16,3 +16,7 @@ class NommyChompBitsError(NommyError):
 
 class NommyEnumValueError(NommyError):
     pass
+
+
+class NommyFieldError(NommyError):
+    pass

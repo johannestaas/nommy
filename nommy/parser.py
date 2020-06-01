@@ -2,7 +2,7 @@ import struct
 from functools import partial
 from collections import namedtuple
 
-from .exceptions import NommyUnpackError
+from .exceptions import NommyUnpackError, NommyFieldError
 from .data import Data
 
 
@@ -117,21 +117,57 @@ def be_i(size):
 '''
 
 
+class repeating:
+    """
+    This allows you to have a list of a repeating parser, based on the count
+    specified by the value in `field_name`.
+    """
+
+    def __init__(self, parse_func, field):
+        self._parse_func = parse_func
+        self.field = field
+        self.count = None
+
+    def parse(self, data, **kwargs):
+        val = []
+        if not isinstance(self.count, int):
+            raise NommyFieldError(
+                f'couldnt get count from field {self.field!r}: {self.count!r}'
+            )
+        for _ in range(self.count):
+            val.append(self._parse_func(data))
+        return val
+
+    def load(self, values):
+        if self.field not in values:
+            raise NommyFieldError(
+                f'dont have field {self.field!r} in parsed values: {values!r}'
+            )
+        self.count = values[self.field]
+        if not isinstance(self.count, int):
+            raise NommyFieldError(
+                f'couldnt get count from field {self.field!r}: {self.count!r}'
+            )
+        return
+
+
 def _parse(cls, _bytes):
-    vals = {}
+    values = {}
     data = Data(_bytes)
     for name, pfunc in cls._parsers.items():
         # If it's a class, or a enum.le_enum, etc.
+        if hasattr(pfunc, 'load'):
+            pfunc.load(values)
         if hasattr(pfunc, 'parse'):
-            pfunc = pfunc.parse
+            pfunc = partial(pfunc.parse)
         try:
             val = pfunc(data)
         except NommyUnpackError as e:
             raise NommyUnpackError(
                 f'failed to unpack {name} from bytes {data.bytes!r}: {e}'
             )
-        vals[name] = val
-    return cls(**vals), data.bytes
+        values[name] = val
+    return cls(**values), data.bytes
 
 
 def parser(cls):
