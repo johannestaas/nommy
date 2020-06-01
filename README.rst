@@ -111,23 +111,23 @@ like a DNS rtype, to have easy named values::
 
 Parsers can be split up into multiple classes, then combined::
 
-   from nummy import parser, le_u8, string
+    from nummy import parser, le_u8, string
 
-   @parser
-   class Header:
-      id: le_u8
-      recipient: string(None)
-      sender: string(None)
+    @parser
+    class Header:
+        id: le_u8
+        recipient: string(None)
+        sender: string(None)
 
-   @parser
-   class Body:
-      subject: string(None)
-      text: string(None)
+    @parser
+    class Body:
+        subject: string(None)
+        text: string(None)
 
-   @parser
-   class Email:
-      header: Header
-      body: Body
+    @parser
+    class Email:
+        header: Header
+        body: Body
 
 See `examples/nested.py`
 
@@ -141,31 +141,26 @@ the number of times specified by a previous field, likely in the header.
 
 The format is: `repeating(SomeDataType, 'field_that_represents_the_count')`
 
-Example::
+You can even reference other parser values by splitting the field with a period `.`::
 
-   from nommy import parser, repeating, flag, le_u, le_u16
+    from nommy import parser, repeating, le_u8, string
 
-   @parser
-   class DNSHeader:
-      id: le_u16
-      qr: flag
-      opcode: le_u(4)
-      aa: flag
-      tc: flag
-      rd: flag
-      ra: flag
-      z: flag
-      ad: flag
-      cd: flag
-      rcode: le_u(4)
-      qdcount: le_u16
-      ancount: le_u16
-      nscount: le_u16
-      arcount: le_u16
+    @parser
+    class Header:
+        id: le_u8
+        payload_ct: le_u8
 
-   @parser
-   class DNSRequest:
-      header: DNSHeader
+    @parser
+    class Payload:
+        name: string(None)
+
+    @parser
+    class Message:
+        header: Header
+        string_ct: le_u8
+        strings: repeating(string(None), 'string_ct')
+        payloads: repeating(Payload, 'header.payload_ct')
+
 
 See examples for more.
 
@@ -173,6 +168,8 @@ See examples for more.
 Release Notes
 -------------
 
+:0.3.0:
+    Added support for nested fields and repeating values.
 :0.2.0:
     Added enums.
 :0.1.0:

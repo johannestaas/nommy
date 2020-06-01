@@ -4,6 +4,7 @@ from examples.string_types import main as main_string_types
 from examples.le_enum import main as main_le_enum
 from examples.dns import main as main_dns
 from examples.nested import main as main_nested
+from examples.repeating import main as main_repeating
 
 
 print('*** Simple Example ***')
@@ -18,3 +19,5 @@ print('*** DNS ***')
 main_dns()
 print('*** Nested ***')
 main_nested()
+print('*** Repeating ***')
+main_repeating()
