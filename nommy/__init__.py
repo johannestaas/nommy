@@ -6,7 +6,7 @@ A python implementation of Rust's nom.
 '''
 
 __title__ = 'nommy'
-__version__ = '0.3.2'
+__version__ = '0.3.3'
 __all__ = (
     'parser', 'Data', 'repeating', 'repeating_until_null',
     'le_enum', 'be_enum',
