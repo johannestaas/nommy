@@ -107,6 +107,31 @@ like a DNS rtype, to have easy named values::
     data, rest = DNSRecord.parse(b'\x10...')
     assert data == DNSRecord(rtype=DNSRType.A, ...)
 
+# Nested Parser
+
+Parsers can be split up into multiple classes, then combined::
+
+   from nummy import parser, le_u8, string
+
+   @parser
+   class Header:
+      id: le_u8
+      recipient: string(None)
+      sender: string(None)
+
+   @parser
+   class Body:
+      subject: string(None)
+      text: string(None)
+
+   @parser
+   class Email:
+      header: Header
+      body: Body
+
+See `examples/nested.py`
+
+
 # Repeating
 
 Sometimes a field in a structure specifies the number of repeating fields, such as in DNS you have

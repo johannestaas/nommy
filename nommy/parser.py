@@ -124,25 +124,51 @@ class repeating:
     """
     _is_parser = True
 
-    def __init__(self, parse_func, field):
-        self._parse_func = parse_func
+    def __init__(self, parse_func_or_cls, field):
         self.field = field
+        if getattr(parse_func_or_cls, '_is_parser', False):
+            self._parse_cls = parse_func_or_cls
+            self._parse_func = parse_func_or_cls.parse
+        else:
+            self._parse_cls = None
+            self._parse_func = parse_func_or_cls
 
-    def parse(self, data, values=None, **kwargs):
-        values = values or {}
-        val = []
-        try:
-            count = values[self.field]
-        except KeyError:
-            raise NommyFieldError(
-                f'couldnt get field {self.field!r} from {values!r}'
-            )
+    def _get_count_from_values(self, values):
+        if '.' in self.field:
+            fields = self.field.split('.')
+            try:
+                count = values[fields[0]]
+            except KeyError:
+                raise NommyFieldError(
+                    f'couldnt get field {fields[0]!r} from {values!r}'
+                )
+            for fld in fields[1:]:
+                if not hasattr(count, fld):
+                    raise NommyFieldError(f'{count!r} has no field {fld!r}')
+                count = getattr(count, fld)
+        else:
+            try:
+                count = values[self.field]
+            except KeyError:
+                raise NommyFieldError(
+                    f'couldnt get field {self.field!r} from {values!r}'
+                )
         if not isinstance(count, int):
             raise NommyFieldError(
                 f'couldnt get count from field {self.field!r}: {count!r}'
             )
+        return count
+
+    def parse(self, data, values=None, parent=None, **kwargs):
+        count = self._get_count_from_values(values)
+        values = values or {}
+        val = []
         for _ in range(count):
-            val.append(self._parse_func(data, values=values, **kwargs))
+            result = self._parse_func(data, values=values, **kwargs)
+            # Would have `rest` in there as well.
+            if self._parse_cls:
+                result = result[0]
+            val.append(result)
         return val
 
 
